@@ -1,0 +1,40 @@
+linters:
+  enable-all: true
+  disable:
+    - gochecknoglobals
+    - interfacer
+    - lll
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+  govet:
+    check-shadowing: true
+  golint:
+    min-confidence: 0
+  gofmt:
+    simplify: true
+  goimports:
+    local-prefixes: github.com/gavi-anchorlabsinc/tezosprotocol
+  gocyclo:
+    min-complexity: 20
+  maligned:
+    suggest-new: true
+  dupl:
+    threshold: 100
+  goconst:
+    min-len: 3
+    min-occurrences: 3
+  misspell:
+    locale: US
+  unused:
+    check-exported: false
+  unparam:
+    check-exported: true
+  nakedret:
+    max-func-lines: 0
+  prealloc:
+    simple: true
+    range-loops: true
+    for-loops: true
