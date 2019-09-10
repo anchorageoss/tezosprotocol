@@ -77,6 +77,9 @@ func ReadNext(byteStream []byte) (*big.Int, int, error) {
 
 // Encode encodes a number to zarith
 func Encode(value *big.Int) ([]byte, error) {
+	if value == nil {
+		value = big.NewInt(0)
+	}
 	if value.Sign() == -1 {
 		return nil, xerrors.Errorf("cannot encode negative integer: %s", value)
 	}
