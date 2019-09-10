@@ -1,4 +1,4 @@
-module github.com/gavi-anchorlabs/tezosprotocol
+module github.com/anchorageoss/tezosprotocol
 
 go 1.12
 
