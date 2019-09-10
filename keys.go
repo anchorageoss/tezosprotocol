@@ -139,7 +139,7 @@ func NewPrivateKeyFromCryptoPrivateKey(cryptoPrivateKey crypto.PrivateKey) (Priv
 	case ed25519.PrivateKey:
 		ret, err := Base58CheckEncode(PrefixEd25519SecretKey, []byte(key))
 		if err != nil {
-			return "", xerrors.New("unable to base58check encode private key")
+			return "", xerrors.Errorf("unable to base58check encode private key: %w", err)
 		}
 		return PrivateKey(ret), nil
 	case *ecdsa.PrivateKey:
@@ -166,7 +166,7 @@ func NewPrivateKeyFromCryptoPrivateKey(cryptoPrivateKey crypto.PrivateKey) (Priv
 func (p PrivateKey) CryptoPrivateKey() (crypto.PrivateKey, error) {
 	b58prefix, b58decoded, err := Base58CheckDecode(string(p))
 	if err != nil {
-		return nil, xerrors.New("unable to base58check decode private key")
+		return nil, xerrors.Errorf("unable to base58check decode private key: %w", err)
 	}
 	switch b58prefix {
 	case PrefixEd25519SecretKey:
@@ -186,7 +186,7 @@ func (p PrivateKey) CryptoPrivateKey() (crypto.PrivateKey, error) {
 func (p PrivateKey) MarshalBinary() ([]byte, error) {
 	b58prefix, b58decoded, err := Base58CheckDecode(string(p))
 	if err != nil {
-		return nil, xerrors.New("unable to base58check encode private key")
+		return nil, xerrors.Errorf("unable to base58check encode private key: %w", err)
 	}
 	switch b58prefix {
 	case PrefixEd25519SecretKey, PrefixSecp256k1SecretKey, PrefixP256SecretKey:
@@ -203,7 +203,7 @@ type PrivateKeySeed string
 func (p PrivateKeySeed) PrivateKey() (PrivateKey, error) {
 	b58prefix, seedBytes, err := Base58CheckDecode(string(p))
 	if err != nil {
-		return "", xerrors.New("failed to base58check decode seed")
+		return "", xerrors.Errorf("failed to base58check decode seed: %w", err)
 	}
 	switch b58prefix {
 	case PrefixEd25519Seed:
