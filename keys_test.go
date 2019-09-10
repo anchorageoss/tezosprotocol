@@ -8,8 +8,8 @@ import (
 	"encoding/hex"
 	"testing"
 
+	"github.com/anchorageoss/tezosprotocol"
 	"github.com/btcsuite/btcd/btcec"
-	"github.com/gavi-anchorlabs/tezosprotocol"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/crypto/ed25519"
 )

@@ -14,8 +14,8 @@ import (
 	"golang.org/x/crypto/ed25519"
 	"golang.org/x/xerrors"
 
+	"github.com/anchorageoss/tezosprotocol/zarith"
 	"github.com/btcsuite/btcd/btcec"
-	"github.com/gavi-anchorlabs/tezosprotocol/zarith"
 )
 
 // Field lengths
