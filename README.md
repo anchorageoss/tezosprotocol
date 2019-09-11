@@ -1,7 +1,12 @@
 # tezosprotocol
+
+[![godoc](https://godoc.org/github.com/google/wire?status.svg)][godoc]
+
 An implementation of the Tezos peer-to-peer communications protocol.
 
 Supports offline fee calculation and the parsing, signing, and encoding of Tezos operations.
+
+[godoc]: https://godoc.org/github.com/anchorageoss/tezosprotocol
 
 ## Installation
 ```bash
