@@ -1,6 +1,6 @@
 # tezosprotocol
 
-[![godoc](https://godoc.org/github.com/google/wire?status.svg)][godoc]
+[![godoc](https://godoc.org/github.com/google/wire?status.svg)][godoc] [![CircleCI](https://circleci.com/gh/anchorageoss/tezosprotocol.svg?style=svg)](https://circleci.com/gh/anchorageoss/tezosprotocol) [![codecov](https://codecov.io/gh/anchorageoss/tezosprotocol/branch/master/graph/badge.svg)](https://codecov.io/gh/anchorageoss/tezosprotocol)
 
 An implementation of the Tezos peer-to-peer communications protocol.
 

@@ -1,0 +1,42 @@
+version: 2
+jobs:
+  go_test:
+    docker:
+      - image: circleci/golang:1.13
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-pkg-cache
+      - run:
+          command: go mod download
+      - save_cache:
+          key: v1-pkg-cache
+          paths:
+            - '/go/pkg'
+      - run: go test -race -coverprofile=coverage.txt -covermode=atomic -coverpkg=./... ./...
+      - run: CODECOV_TOKEN="01bc2a19-099e-48ef-bde0-968b0848d694" bash <(curl -s https://codecov.io/bash)
+  go_lint:
+    docker:
+    - image: golangci/golangci-lint:v1.19.1
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-pkg-cache
+      - run:
+          command: go mod tidy && git --no-pager diff --stat go.*
+      - run:
+          command: go mod download
+      - save_cache:
+          key: v1-pkg-cache
+          paths:
+            - '/go/pkg'
+      - run: golangci-lint run
+
+workflows:
+  version: 2
+  all_test:
+    jobs:
+      - go_test
+      - go_lint
