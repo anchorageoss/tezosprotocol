@@ -50,13 +50,13 @@ type ContentsTag byte
 
 const (
 	// ContentsTagRevelation is the tag for revelations
-	ContentsTagRevelation ContentsTag = 7
+	ContentsTagRevelation ContentsTag = 107
 	// ContentsTagTransaction is the tag for transactions
-	ContentsTagTransaction ContentsTag = 8
+	ContentsTagTransaction ContentsTag = 108
 	// ContentsTagOrigination is the tag for originations
-	ContentsTagOrigination ContentsTag = 9
+	ContentsTagOrigination ContentsTag = 109
 	// ContentsTagDelegation is the tag for delegations
-	ContentsTagDelegation ContentsTag = 10
+	ContentsTagDelegation ContentsTag = 110
 )
 
 // ContractIDTag captures the possible tag values for $contract_id
@@ -165,7 +165,7 @@ func NewContractIDFromPublicKey(pubKey PublicKey) (ContractID, error) {
 	case ed25519.PublicKey:
 		pubKeyBytes = []byte(key)
 	default:
-		return "", xerrors.Errorf("unknown public key type %T", cryptoPubKey)
+		return "", xerrors.Errorf("unsupported public key type %T", cryptoPubKey)
 	}
 
 	// pubkey hash
@@ -273,12 +273,21 @@ func (c ContractID) MarshalBinary() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// UnmarshalBinary implements encoding.BinaryUnmarshaler
+// UnmarshalBinary implements encoding.BinaryUnmarshaler. It accepts a 22 byte $contract_id or
+// a 21 byte $public_key_hash
 func (c *ContractID) UnmarshalBinary(data []byte) error {
-	if len(data) < ContractIDLen {
-		return xerrors.Errorf("expected %d bytes for contract ID, received %d", ContractIDLen, len(data))
+	var contractIDTag ContractIDTag
+	switch len(data) {
+	case ContractIDLen:
+		contractIDTag = ContractIDTag(data[0])
+	case TaggedPubKeyHashLen:
+		// prepend a byte to data so we can pretend the caller supplied a $contract_id instead of
+		// a $public_key_hash and reuse the same parsing code below
+		data = append([]byte{byte(ContractIDTagImplicit)}, data...)
+		contractIDTag = ContractIDTagImplicit
+	default:
+		return xerrors.Errorf("expected %d bytes for contract ID or %d bytes for tagged public key hash; received %d", ContractIDLen, TaggedPubKeyHashLen, len(data))
 	}
-	contractIDTag := ContractIDTag(data[0])
 	switch contractIDTag {
 	case ContractIDTagImplicit:
 		pubKeyHashTag := PubKeyHashTag(data[1])
@@ -315,6 +324,14 @@ func (c *ContractID) UnmarshalBinary(data []byte) error {
 // originated addresses, whose public key hashes are not inferrable from their
 // contract ID.
 func (c ContractID) EncodePubKeyHash() ([]byte, error) {
+	accountType, err := c.AccountType()
+	if err != nil {
+		return nil, err
+	}
+	if accountType != AccountTypeImplicit {
+		return nil, xerrors.Errorf("contract ID %s does not represent an implicit account", c)
+	}
+
 	b58prefix, _, err := Base58CheckDecode(string(c))
 	if err != nil {
 		return nil, err
@@ -550,7 +567,7 @@ func (r *Revelation) MarshalBinary() ([]byte, error) {
 	buf.WriteByte(byte(r.GetTag()))
 
 	// source
-	sourceBytes, err := r.Source.MarshalBinary()
+	sourceBytes, err := r.Source.EncodePubKeyHash()
 	if err != nil {
 		return nil, xerrors.Errorf("failed to write source: %w", err)
 	}
@@ -613,11 +630,11 @@ func (r *Revelation) UnmarshalBinary(data []byte) (err error) {
 	dataPtr = dataPtr[1:]
 
 	// source
-	err = r.Source.UnmarshalBinary(dataPtr[:ContractIDLen])
+	err = r.Source.UnmarshalBinary(dataPtr[:TaggedPubKeyHashLen])
 	if err != nil {
 		return xerrors.Errorf("failed to unmarshal source: %w", err)
 	}
-	dataPtr = dataPtr[ContractIDLen:]
+	dataPtr = dataPtr[TaggedPubKeyHashLen:]
 
 	// fee
 	var bytesRead int
@@ -666,6 +683,7 @@ type Transaction struct {
 	StorageLimit *big.Int
 	Amount       *big.Int
 	Destination  ContractID
+	//nolint:godox
 	// TODO: parameters
 }
 
@@ -683,7 +701,7 @@ func (t *Transaction) GetSource() ContractID {
 	return t.Source
 }
 
-// MmarshalBinary implements encoding.BinaryMarshaler
+// MarshalBinary implements encoding.BinaryMarshaler
 func (t *Transaction) MarshalBinary() ([]byte, error) {
 	buf := bytes.Buffer{}
 
@@ -691,7 +709,7 @@ func (t *Transaction) MarshalBinary() ([]byte, error) {
 	buf.WriteByte(byte(t.GetTag()))
 
 	// source
-	sourceBytes, err := t.Source.MarshalBinary()
+	sourceBytes, err := t.Source.EncodePubKeyHash()
 	if err != nil {
 		return nil, xerrors.Errorf("failed to write source: %w", err)
 	}
@@ -764,11 +782,11 @@ func (t *Transaction) UnmarshalBinary(data []byte) (err error) {
 	dataPtr = dataPtr[1:]
 
 	// source
-	err = t.Source.UnmarshalBinary(dataPtr[:ContractIDLen])
+	err = t.Source.UnmarshalBinary(dataPtr[:TaggedPubKeyHashLen])
 	if err != nil {
 		return xerrors.Errorf("failed to unmarshal source: %w", err)
 	}
-	dataPtr = dataPtr[ContractIDLen:]
+	dataPtr = dataPtr[TaggedPubKeyHashLen:]
 
 	// fee
 	var bytesRead int
@@ -832,12 +850,9 @@ type Origination struct {
 	Counter      *big.Int
 	GasLimit     *big.Int
 	StorageLimit *big.Int
-	Manager      ContractID
 	Balance      *big.Int
-	Spendable    bool
-	Delegatable  bool
 	Delegate     *ContractID
-	// TODO: script
+	Script       ContractScript
 }
 
 func (o *Origination) String() string {
@@ -862,7 +877,7 @@ func (o *Origination) MarshalBinary() ([]byte, error) {
 	buf.WriteByte(byte(o.GetTag()))
 
 	// source
-	sourceBytes, err := o.Source.MarshalBinary()
+	sourceBytes, err := o.Source.EncodePubKeyHash()
 	if err != nil {
 		return nil, xerrors.Errorf("failed to write source: %w", err)
 	}
@@ -896,13 +911,6 @@ func (o *Origination) MarshalBinary() ([]byte, error) {
 	}
 	buf.Write(storageLimit)
 
-	// manager pub key hash
-	managerPubKeyBytes, err := o.Manager.EncodePubKeyHash()
-	if err != nil {
-		return nil, xerrors.Errorf("failed to write managerPubKey: %w", err)
-	}
-	buf.Write(managerPubKeyBytes)
-
 	// balance
 	balance, err := zarith.Encode(o.Balance)
 	if err != nil {
@@ -910,16 +918,11 @@ func (o *Origination) MarshalBinary() ([]byte, error) {
 	}
 	buf.Write(balance)
 
-	// spendable
-	buf.WriteByte(serializeBoolean(o.Spendable))
-
-	// delegatable
-	buf.WriteByte(serializeBoolean(o.Delegatable))
-
 	// delegate
 	hasDelegate := o.Delegate != nil
 	buf.WriteByte(serializeBoolean(hasDelegate))
 	if hasDelegate {
+		//nolint:govet
 		delegatePubKeyHashBytes, err := o.Delegate.EncodePubKeyHash()
 		if err != nil {
 			return nil, xerrors.Errorf("failed to write delegate: %w", err)
@@ -928,8 +931,11 @@ func (o *Origination) MarshalBinary() ([]byte, error) {
 	}
 
 	// script
-	hasScript := false
-	buf.WriteByte(serializeBoolean(hasScript))
+	scriptBytes, err := o.Script.MarshalBinary()
+	if err != nil {
+		return nil, xerrors.Errorf("failed to write Script: %w", err)
+	}
+	buf.Write(scriptBytes)
 
 	return buf.Bytes(), nil
 }
@@ -953,11 +959,11 @@ func (o *Origination) UnmarshalBinary(data []byte) (err error) {
 	dataPtr = dataPtr[1:]
 
 	// source
-	err = o.Source.UnmarshalBinary(dataPtr[:ContractIDLen])
+	err = o.Source.UnmarshalBinary(dataPtr[:TaggedPubKeyHashLen])
 	if err != nil {
 		return xerrors.Errorf("failed to unmarshal source: %w", err)
 	}
-	dataPtr = dataPtr[ContractIDLen:]
+	dataPtr = dataPtr[TaggedPubKeyHashLen:]
 
 	// fee
 	var bytesRead int
@@ -988,32 +994,12 @@ func (o *Origination) UnmarshalBinary(data []byte) (err error) {
 	}
 	dataPtr = dataPtr[bytesRead:]
 
-	// manager (from pub key hash)
-	taggedPubKeyHash := dataPtr[:TaggedPubKeyHashLen]
-	managerContractID := append([]byte{byte(ContractIDTagImplicit)}, taggedPubKeyHash...)
-	err = o.Manager.UnmarshalBinary(managerContractID)
-	dataPtr = dataPtr[TaggedPubKeyHashLen:]
-
 	// balance
 	o.Balance, bytesRead, err = zarith.ReadNext(dataPtr)
 	if err != nil {
 		return xerrors.Errorf("failed to unmarshal balance: %w", err)
 	}
 	dataPtr = dataPtr[bytesRead:]
-
-	// spendable
-	o.Spendable, err = deserializeBoolean(dataPtr[0])
-	if err != nil {
-		return xerrors.Errorf("failed to deserialize spendable: %w", err)
-	}
-	dataPtr = dataPtr[1:]
-
-	// delegatable
-	o.Delegatable, err = deserializeBoolean(dataPtr[0])
-	if err != nil {
-		return xerrors.Errorf("failed to deserialize delegatable: %w", err)
-	}
-	dataPtr = dataPtr[1:]
 
 	// delegate
 	hasDelegate, err := deserializeBoolean(dataPtr[0])
@@ -1022,10 +1008,9 @@ func (o *Origination) UnmarshalBinary(data []byte) (err error) {
 	}
 	dataPtr = dataPtr[1:]
 	if hasDelegate {
-		taggedPubKeyHash = dataPtr[:TaggedPubKeyHashLen]
-		delegateContractIDBytes := append([]byte{byte(ContractIDTagImplicit)}, taggedPubKeyHash...)
+		taggedPubKeyHash := dataPtr[:TaggedPubKeyHashLen]
 		var delegate ContractID
-		err = delegate.UnmarshalBinary(delegateContractIDBytes)
+		err = delegate.UnmarshalBinary(taggedPubKeyHash)
 		if err != nil {
 			return xerrors.Errorf("failed to deserialize delegate: %w", err)
 		}
@@ -1034,12 +1019,9 @@ func (o *Origination) UnmarshalBinary(data []byte) (err error) {
 	}
 
 	// script
-	hasScript, err := deserializeBoolean(dataPtr[0])
+	err = o.Script.UnmarshalBinary(dataPtr)
 	if err != nil {
-		return xerrors.Errorf("failed to deserialize presence of field \"script\": %w", err)
-	}
-	if hasScript {
-		return xerrors.New("deserializing scripts not yet supported")
+		return xerrors.Errorf("failed to deserialize script: %w", err)
 	}
 
 	return nil
@@ -1077,7 +1059,7 @@ func (d *Delegation) MarshalBinary() ([]byte, error) {
 	buf.WriteByte(byte(d.GetTag()))
 
 	// source
-	sourceBytes, err := d.Source.MarshalBinary()
+	sourceBytes, err := d.Source.EncodePubKeyHash()
 	if err != nil {
 		return nil, xerrors.Errorf("failed to write source: %w", err)
 	}
@@ -1144,11 +1126,11 @@ func (d *Delegation) UnmarshalBinary(data []byte) (err error) {
 	dataPtr = dataPtr[1:]
 
 	// source
-	err = d.Source.UnmarshalBinary(dataPtr[:ContractIDLen])
+	err = d.Source.UnmarshalBinary(dataPtr[:TaggedPubKeyHashLen])
 	if err != nil {
 		return xerrors.Errorf("failed to unmarshal source: %w", err)
 	}
-	dataPtr = dataPtr[ContractIDLen:]
+	dataPtr = dataPtr[TaggedPubKeyHashLen:]
 
 	// fee
 	var bytesRead int
@@ -1187,9 +1169,8 @@ func (d *Delegation) UnmarshalBinary(data []byte) (err error) {
 	dataPtr = dataPtr[1:]
 	if hasDelegate {
 		taggedPubKeyHash := dataPtr[:TaggedPubKeyHashLen]
-		delegateContractIDBytes := append([]byte{byte(ContractIDTagImplicit)}, taggedPubKeyHash...)
 		var delegate ContractID
-		err = delegate.UnmarshalBinary(delegateContractIDBytes)
+		err = delegate.UnmarshalBinary(taggedPubKeyHash)
 		if err != nil {
 			return xerrors.Errorf("failed to deserialize delegate: %w", err)
 		}
