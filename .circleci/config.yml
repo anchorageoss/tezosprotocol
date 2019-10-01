@@ -25,7 +25,7 @@ jobs:
           keys:
             - v1-pkg-cache
       - run:
-          command: go mod tidy && git diff go.*
+          command: go mod tidy && git --no-pager diff --stat go.*
       - run:
           command: go mod download
       - save_cache:
