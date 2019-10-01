@@ -1,4 +1,4 @@
-module github.com/anchorageoss/tezosprotocol
+module github.com/anchorageoss/tezosprotocol/v2
 
 go 1.12
 

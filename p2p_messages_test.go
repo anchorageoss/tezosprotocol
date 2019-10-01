@@ -5,7 +5,7 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/anchorageoss/tezosprotocol"
+	tezosprotocol "github.com/anchorageoss/tezosprotocol/v2"
 	"github.com/stretchr/testify/require"
 )
 

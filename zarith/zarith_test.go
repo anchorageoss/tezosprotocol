@@ -6,7 +6,7 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/anchorageoss/tezosprotocol/zarith"
+	"github.com/anchorageoss/tezosprotocol/v2/zarith"
 	"github.com/stretchr/testify/require"
 )
 

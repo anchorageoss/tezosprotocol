@@ -14,7 +14,7 @@ import (
 	"golang.org/x/crypto/ed25519"
 	"golang.org/x/xerrors"
 
-	"github.com/anchorageoss/tezosprotocol/zarith"
+	"github.com/anchorageoss/tezosprotocol/v2/zarith"
 	"github.com/btcsuite/btcd/btcec"
 )
 
