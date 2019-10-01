@@ -23,7 +23,7 @@ func (c ContractScript) MarshalBinary() ([]byte, error) {
 		return nil, xerrors.Errorf("script code cannot exceed %d bytes (uint30_max)", maxUint30)
 	}
 	if len(c.Storage) > maxUint30 {
-		return nil, xerrors.Errorf("script code cannot exceed %d bytes (uint30_max)", maxUint30)
+		return nil, xerrors.Errorf("script storage cannot exceed %d bytes (uint30_max)", maxUint30)
 	}
 	err := binary.Write(buf, binary.BigEndian, uint32(len(c.Code)))
 	if err != nil {

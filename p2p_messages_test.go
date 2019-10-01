@@ -1,6 +1,7 @@
 package tezosprotocol_test
 
 import (
+	"encoding"
 	"encoding/hex"
 	"math/big"
 	"testing"
@@ -146,6 +147,7 @@ func TestEncodeOrigination(t *testing.T) {
 		Code:    primUnit,
 		Storage: primUnit,
 	}
+	delegate := tezosprotocol.ContractID("tz1ddb9NMYHZi5UzPdzTZMYQQZoMub195zgv")
 	origination := &tezosprotocol.Origination{
 		Source:       tezosprotocol.ContractID("tz1KqTpEZ7Yob7QbPE4Hy4Wo8fHG8LhKxZSx"),
 		Fee:          big.NewInt(1266),
@@ -153,7 +155,7 @@ func TestEncodeOrigination(t *testing.T) {
 		GasLimit:     big.NewInt(10100),
 		StorageLimit: big.NewInt(277),
 		Balance:      big.NewInt(12000000),
-		Delegate:     nil,
+		Delegate:     &delegate,
 		Script:       dummyScript,
 	}
 	encodedBytes, err := origination.MarshalBinary()
@@ -165,16 +167,16 @@ func TestEncodeOrigination(t *testing.T) {
 	// "contents":
 	// 	[ { "kind": "origination",
 	// 		"source": "tz1KqTpEZ7Yob7QbPE4Hy4Wo8fHG8LhKxZSx",
-	// 		"fee": "1266", "counter": "1", "gas_limit": "10100",
+	// 		"fee": "1266", "counter": "1", "gas_limit": "10100", "delegate": "tz1ddb9NMYHZi5UzPdzTZMYQQZoMub195zgv",
 	// 		"storage_limit": "277",  "balance": "12000000", "script": { "code": {"prim": "unit"}, "storage": {"prim": "unit"} } } ]
 	// }'
-	expected := "6d0002298c03ed7d454a101eb7022bc95f7e5f41ac78f20901f44e950280b6dc050000000002036c00000002036c"
+	expected := "6d0002298c03ed7d454a101eb7022bc95f7e5f41ac78f20901f44e950280b6dc05ff00c55cf02dbeecc978d9c84625dcae72bb77ea4fbd00000002036c00000002036c"
 	require.Equal(expected, encoded)
 }
 
 func TestDecodeOrigination(t *testing.T) {
 	require := require.New(t)
-	encoded, err := hex.DecodeString("6d0002298c03ed7d454a101eb7022bc95f7e5f41ac78f20901f44e950280b6dc050000000002036c00000002036c")
+	encoded, err := hex.DecodeString("6d0002298c03ed7d454a101eb7022bc95f7e5f41ac78f20901f44e950280b6dc05ff00c55cf02dbeecc978d9c84625dcae72bb77ea4fbd00000002036c00000002036c")
 	require.NoError(err)
 	origination := tezosprotocol.Origination{}
 	require.NoError(origination.UnmarshalBinary(encoded))
@@ -184,7 +186,8 @@ func TestDecodeOrigination(t *testing.T) {
 	require.Equal("10100", origination.GasLimit.String())
 	require.Equal("277", origination.StorageLimit.String())
 	require.Equal("12000000", origination.Balance.String())
-	require.Nil(origination.Delegate)
+	require.NotNil(origination.Delegate)
+	require.Equal(tezosprotocol.ContractID("tz1ddb9NMYHZi5UzPdzTZMYQQZoMub195zgv"), *origination.Delegate)
 
 	// check the script
 	primUnit, err := hex.DecodeString("036c") // 03 <prim0> 6c <unit>
@@ -338,4 +341,57 @@ func TestDeriveOriginatedAddress(t *testing.T) {
 	originatedAddr1, err := tezosprotocol.NewContractIDFromOrigination(operationHash, 1)
 	require.NoError(err)
 	require.Equal(tezosprotocol.ContractID("KT1MXc7s1ZtoVZvbws7vrmz1oLeVGPFoBqpL"), originatedAddr1)
+}
+
+func TestNewContractIDFromPublicKey(t *testing.T) {
+	require := require.New(t)
+	publicKey := tezosprotocol.PublicKey("edpkuBknW28nW72KG6RoHtYW7p12T6GKc7nAbwYX5m8Wd9sDVC9yav")
+	expected := tezosprotocol.ContractID("tz1KqTpEZ7Yob7QbPE4Hy4Wo8fHG8LhKxZSx")
+	observed, err := tezosprotocol.NewContractIDFromPublicKey(publicKey)
+	require.NoError(err)
+	require.Equal(expected, observed)
+}
+
+func TestUnmarshalingIndexOutOfBoundsException(t *testing.T) {
+	require := require.New(t)
+	emptyBytes := []byte{}
+	unmarshalers := []encoding.BinaryUnmarshaler{
+		&tezosprotocol.Operation{},
+		&tezosprotocol.Revelation{},
+		&tezosprotocol.Transaction{},
+		&tezosprotocol.Delegation{},
+		&tezosprotocol.Origination{},
+	}
+	for _, unmarshaler := range unmarshalers {
+		err := unmarshaler.UnmarshalBinary(emptyBytes)
+		require.Error(err, "%T", unmarshaler)
+		require.Contains(err.Error(), "out of bounds exception", "%T", unmarshaler)
+	}
+}
+
+func TestAccountType(t *testing.T) {
+	require := require.New(t)
+	testCases := []struct {
+		Input    string
+		Expected tezosprotocol.AccountType
+	}{{
+		Input:    "tz1KqTpEZ7Yob7QbPE4Hy4Wo8fHG8LhKxZSx",
+		Expected: tezosprotocol.AccountTypeImplicit,
+	}, {
+		Input:    "tz29nEixktH9p9XTFX7p8hATUyeLxXEz96KR",
+		Expected: tezosprotocol.AccountTypeImplicit,
+	}, {
+		Input:    "tz3Mo3gHekQhCmykfnC58ecqJLXrjMKzkF2Q",
+		Expected: tezosprotocol.AccountTypeImplicit,
+	}, {
+		Input:    "KT1Q6hx3bJayhQYfMDL1z2ugd7GXGckVAV82",
+		Expected: tezosprotocol.AccountTypeOriginated,
+	}}
+
+	for _, testCase := range testCases {
+		contractID := tezosprotocol.ContractID(testCase.Input)
+		observedAccountType, err := contractID.AccountType()
+		require.NoError(err, contractID)
+		require.Equal(testCase.Expected, observedAccountType, "mismatch for input %s", testCase.Input)
+	}
 }

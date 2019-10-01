@@ -138,14 +138,11 @@ func deserializeBoolean(b byte) (bool, error) {
 	}
 }
 
-func catchOutOfRangeExceptions() error {
-	if r := recover(); r != nil {
-		if strings.Contains(fmt.Sprintf("%s", r), "out of range") {
-			return xerrors.New("out of bounds exception while parsing operation")
-		}
-		panic(r)
+func catchOutOfRangeExceptions(r interface{}) error {
+	if strings.Contains(fmt.Sprintf("%s", r), "out of range") {
+		return xerrors.New("out of bounds exception while parsing operation")
 	}
-	return nil
+	panic(r)
 }
 
 // ContractID encodes a tezos contract ID (either implicit or originated) in
@@ -462,7 +459,9 @@ func (o *Operation) UnmarshalBinary(data []byte) (err error) {
 	// cleanly recover from out of bounds exceptions
 	defer func() {
 		if err == nil {
-			err = catchOutOfRangeExceptions()
+			if r := recover(); r != nil {
+				err = catchOutOfRangeExceptions(r)
+			}
 		}
 	}()
 
@@ -616,7 +615,9 @@ func (r *Revelation) UnmarshalBinary(data []byte) (err error) {
 	// cleanly recover from out of bounds exceptions
 	defer func() {
 		if err == nil {
-			err = catchOutOfRangeExceptions()
+			if r := recover(); r != nil {
+				err = catchOutOfRangeExceptions(r)
+			}
 		}
 	}()
 
@@ -768,7 +769,9 @@ func (t *Transaction) UnmarshalBinary(data []byte) (err error) {
 	// cleanly recover from out of bounds exceptions
 	defer func() {
 		if err == nil {
-			err = catchOutOfRangeExceptions()
+			if r := recover(); r != nil {
+				err = catchOutOfRangeExceptions(r)
+			}
 		}
 	}()
 
@@ -945,7 +948,9 @@ func (o *Origination) UnmarshalBinary(data []byte) (err error) {
 	// cleanly recover from out of bounds exceptions
 	defer func() {
 		if err == nil {
-			err = catchOutOfRangeExceptions()
+			if r := recover(); r != nil {
+				err = catchOutOfRangeExceptions(r)
+			}
 		}
 	}()
 
@@ -1112,7 +1117,9 @@ func (d *Delegation) UnmarshalBinary(data []byte) (err error) {
 	// cleanly recover from out of bounds exceptions
 	defer func() {
 		if err == nil {
-			err = catchOutOfRangeExceptions()
+			if r := recover(); r != nil {
+				err = catchOutOfRangeExceptions(r)
+			}
 		}
 	}()
 
