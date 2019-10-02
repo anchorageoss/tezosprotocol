@@ -1,12 +1,14 @@
 package tezosprotocol_test
 
 import (
+	"bytes"
 	"encoding/hex"
 	"math/big"
 	"testing"
 
 	"github.com/anchorageoss/tezosprotocol"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/crypto/ed25519"
 )
 
 type encodeDecodeTestCase struct {
@@ -318,4 +320,27 @@ func TestDeriveOriginatedAddress(t *testing.T) {
 	originatedAddr1, err := tezosprotocol.NewContractIDFromOrigination(operationHash, 1)
 	require.NoError(err)
 	require.Equal(tezosprotocol.ContractID("KT1MXc7s1ZtoVZvbws7vrmz1oLeVGPFoBqpL"), originatedAddr1)
+}
+
+func TestNewContractIDGeneration(t *testing.T) {
+	require := require.New(t)
+	cryptoPublicKey, _, err := ed25519.GenerateKey(bytes.NewReader(randSeed))
+	require.NoError(err)
+	publicKey, err := tezosprotocol.NewPublicKeyFromCryptoPublicKey(cryptoPublicKey)
+	require.NoError(err)
+	_, err = tezosprotocol.NewContractIDFromPublicKey(publicKey)
+	require.NoError(err)
+}
+
+func TestMessageSignatureVerification(t *testing.T) {
+	require := require.New(t)
+	msg := "Hi, my name is Werner Brandes. My voice is my passport. Verify Me."
+	cryptoPublicKey, cryptoPrivateKey, err := ed25519.GenerateKey(bytes.NewReader(randSeed))
+	require.NoError(err)
+	privateKey, err := tezosprotocol.NewPrivateKeyFromCryptoPrivateKey(cryptoPrivateKey)
+	require.NoError(err)
+	sig, err := tezosprotocol.SignMessage(msg, privateKey)
+	require.NoError(err)
+	err = tezosprotocol.VerifyMessage(msg, sig, cryptoPublicKey)
+	require.NoError(err)
 }
