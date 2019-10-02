@@ -1,6 +1,7 @@
 package tezosprotocol_test
 
 import (
+	"bytes"
 	"encoding"
 	"encoding/hex"
 	"math/big"
@@ -8,6 +9,7 @@ import (
 
 	tezosprotocol "github.com/anchorageoss/tezosprotocol/v2"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/crypto/ed25519"
 )
 
 type encodeDecodeTestCase struct {
@@ -394,4 +396,27 @@ func TestAccountType(t *testing.T) {
 		require.NoError(err, contractID)
 		require.Equal(testCase.Expected, observedAccountType, "mismatch for input %s", testCase.Input)
 	}
+}
+
+func TestNewContractIDGeneration(t *testing.T) {
+	require := require.New(t)
+	cryptoPublicKey, _, err := ed25519.GenerateKey(bytes.NewReader(randSeed))
+	require.NoError(err)
+	publicKey, err := tezosprotocol.NewPublicKeyFromCryptoPublicKey(cryptoPublicKey)
+	require.NoError(err)
+	_, err = tezosprotocol.NewContractIDFromPublicKey(publicKey)
+	require.NoError(err)
+}
+
+func TestMessageSignatureVerification(t *testing.T) {
+	require := require.New(t)
+	msg := "Hi, my name is Werner Brandes. My voice is my passport. Verify Me."
+	cryptoPublicKey, cryptoPrivateKey, err := ed25519.GenerateKey(bytes.NewReader(randSeed))
+	require.NoError(err)
+	privateKey, err := tezosprotocol.NewPrivateKeyFromCryptoPrivateKey(cryptoPrivateKey)
+	require.NoError(err)
+	sig, err := tezosprotocol.SignMessage(msg, privateKey)
+	require.NoError(err)
+	err = tezosprotocol.VerifyMessage(msg, sig, cryptoPublicKey)
+	require.NoError(err)
 }
