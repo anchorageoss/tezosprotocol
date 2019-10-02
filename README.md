@@ -72,9 +72,9 @@ fmt.Printf("%x\n", signedOperationBytes)
 All backwards-incompatible changes will be handled via standard semantic versioning conventions. Separate tags for the latest stable release for each Tezos protocol will be maintained in parallel.
 
 A separate go module will be published for each Tezos protocol upgrade to support applications migrating between the two.
-```
+```go
 import (
-	babylon github.com/anchorageoss/tezosprotocol/v2
-	athens github.com/anchorageoss/tezosprotocol
+	babylon "github.com/anchorageoss/tezosprotocol/v2"
+	athens "github.com/anchorageoss/tezosprotocol"
 )
 ```
