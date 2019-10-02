@@ -4,7 +4,6 @@ linters:
     - gochecknoglobals
     - interfacer
     - lll
-    - godox
 
 linters-settings:
   funlen:
