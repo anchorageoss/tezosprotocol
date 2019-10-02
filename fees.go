@@ -50,37 +50,6 @@ const (
 	// Reference: https://gitlab.com/tezos/tezos/blob/f5c50c8ba1670b7a2ee58bed8a7806f00c43340c/src/proto_alpha/lib_client/client_proto_args.ml#L253
 	DefaultMinimalNanotezPerByte = int64(1000)
 
-	// OriginationGasLimit is the gas consumed by a simple origination.
-	// reference: http://tezos.gitlab.io/mainnet/protocols/003_PsddFKi3.html#more-details-on-fees-and-cost-model
-	OriginationGasLimit = int64(10000)
-
-	// MinimumOriginationSizeBytes is the smallest size in bytes of a serialized,
-	// signed origination operation
-	MinimumOriginationSizeBytes = int64(152)
-
-	// OriginationMinimumFee is the minimum amount to be paid to a baker for an
-	// operation with one origination
-	OriginationMinimumFee = DefaultMinimalFees +
-		DefaultMinimalNanotezPerByte*MinimumOriginationSizeBytes/int64(1000) +
-		DefaultMinimalNanotezPerGasUnit*OriginationGasLimit/int64(1000)
-
-	// OriginationStorageLimitBytes is the storage limit required for originations
-	OriginationStorageLimitBytes = NewAccountStorageLimitBytes
-
-	// OriginationStorageBurn is the amount of mutez burned by an account as a consequence
-	// of signing an origination.
-	OriginationStorageBurn = OriginationStorageLimitBytes * StorageCostPerByte
-
-	// reference: http://tezos.gitlab.io/mainnet/protocols/003_PsddFKi3.html#more-details-on-fees-and-cost-model
-	MinimumOriginatedAccountTransferGasLimit  = int64(10100)
-	MinimumOriginatedAccountTransferSizeBytes = int64(215)
-
-	// OriginatedAccountTransferMinimumFee is the minimum amount to be paid to a baker
-	// for a transfer from an originated account
-	OriginatedAccountTransferMinimumFee = DefaultMinimalFees +
-		DefaultMinimalNanotezPerByte*MinimumOriginatedAccountTransferSizeBytes/int64(1000) +
-		DefaultMinimalNanotezPerGasUnit*MinimumOriginatedAccountTransferGasLimit/int64(1000)
-
 	// RevelationGasLimit is the gas consumed by a revelation
 	RevelationGasLimit = int64(10000)
 
@@ -94,7 +63,7 @@ const (
 
 	// MinimumTransactionGasLimit is the gas consumed by a transaction with no parameters
 	// that does not result in any Michelson code execution.
-	MinimumTransactionGasLimit = int64(10200)
+	MinimumTransactionGasLimit = int64(10207)
 
 	// DelegationGasLimit is the gas consumed by a delegation
 	DelegationGasLimit = int64(10000)
