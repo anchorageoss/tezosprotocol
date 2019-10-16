@@ -684,8 +684,7 @@ type Transaction struct {
 	StorageLimit *big.Int
 	Amount       *big.Int
 	Destination  ContractID
-	//nolint:godox
-	// TODO: parameters
+	Parameters   *TransactionParameters
 }
 
 func (t *Transaction) String() string {
@@ -758,8 +757,16 @@ func (t *Transaction) MarshalBinary() ([]byte, error) {
 	}
 	buf.Write(destinationBytes)
 
-	// no parameters follow
-	buf.WriteByte(0)
+	// parameters
+	paramsFollow := t.Parameters != nil
+	buf.WriteByte(serializeBoolean(paramsFollow))
+	if paramsFollow {
+		paramsBytes, err := t.Parameters.MarshalBinary()
+		if err != nil {
+			return nil, xerrors.Errorf("failed to write transaction parameters: %w", err)
+		}
+		buf.Write(paramsBytes)
+	}
 
 	return buf.Bytes(), nil
 }
@@ -836,11 +843,16 @@ func (t *Transaction) UnmarshalBinary(data []byte) (err error) {
 
 	// parameters
 	hasParameters, err := deserializeBoolean(dataPtr[0])
+	dataPtr = dataPtr[1:]
 	if err != nil {
 		return xerrors.Errorf("failed to deserialialize presence of field \"parameters\": %w", err)
 	}
 	if hasParameters {
-		return xerrors.Errorf("deserializing parameters not supported")
+		t.Parameters = &TransactionParameters{Value: &TransactionParametersValueRawBytes{}}
+		err = t.Parameters.UnmarshalBinary(dataPtr)
+		if err != nil {
+			return xerrors.Errorf("failed to deserialize transaction parameters: %w", err)
+		}
 	}
 
 	return nil
