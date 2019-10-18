@@ -208,7 +208,7 @@ func EncodeSigned(value *big.Int) ([]byte, error) {
 	return bitStringToBytes(encodedBitString), nil
 }
 
-// EncodeSignedToHex encodes an unsigned integer to zarith
+// EncodeSignedToHex encodes a signed integer to zarith
 func EncodeSignedToHex(value *big.Int) (string, error) {
 	bytes, err := EncodeSigned(value)
 	if err != nil {
