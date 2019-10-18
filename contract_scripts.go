@@ -203,12 +203,30 @@ type TransactionParametersValueRawBytes []byte
 
 // MarshalBinary implements encoding.BinaryMarshaler.
 func (t *TransactionParametersValueRawBytes) MarshalBinary() ([]byte, error) {
-	return []byte(*t), nil
+	var parameters []byte
+	if t != nil {
+		parameters = []byte(*t)
+	}
+	outputBuf := new(bytes.Buffer)
+	err := binary.Write(outputBuf, binary.BigEndian, uint32(len(parameters)))
+	if err != nil {
+		return nil, xerrors.Errorf("failed to marshal parameters length: %w', err")
+	}
+	outputBuf.Write(parameters)
+	return outputBuf.Bytes(), nil
 }
 
 // UnmarshalBinary implements encoding.BinaryUnmarshaler.
 func (t *TransactionParametersValueRawBytes) UnmarshalBinary(data []byte) error {
-	*t = data
+	var length uint32
+	err := binary.Read(bytes.NewReader(data), binary.BigEndian, &length)
+	if err != nil {
+		return xerrors.Errorf("invalid transaction parameters value: %w", err)
+	}
+	if len(data) != int(4+length) {
+		return xerrors.Errorf("parameters should be %d bytes, but was %d", length, len(data)-4)
+	}
+	*t = data[4:]
 	return nil
 }
 

@@ -155,7 +155,7 @@ func TestEncodeTransactionWithParameters(t *testing.T) {
 	// 			"parameters": {"entrypoint": "do", "value": {}} } ]
 	// }'
 	// e655948a282fcfc31b98abe9b37a82038c4c0e9b8e11f60ea0c7b33e6ecc625f6c0002298c03ed7d454a101eb7022bc95f7e5f41ac78f20901f44e950200015ab81204ccd229281b9c462edaf0a43e78075f4600ff02000000050200000000
-	paramsValueBytes, err := hex.DecodeString("000000050200000000")
+	paramsValueBytes, err := hex.DecodeString("0200000000")
 	require.NoError(err)
 	paramsValue := tezosprotocol.TransactionParametersValueRawBytes(paramsValueBytes)
 	transaction := &tezosprotocol.Transaction{
