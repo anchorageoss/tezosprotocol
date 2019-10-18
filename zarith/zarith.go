@@ -146,9 +146,9 @@ func EncodeToHex(value *big.Int) (string, error) {
 }
 
 // EncodeSigned encodes a signed integer to zarith
-func EncodeSigned(value *big.Int) ([]byte, error) {
+func EncodeSigned(value *big.Int) []byte {
 	if value == nil || value.Sign() == 0 {
-		return []byte{0}, nil
+		return []byte{0}
 	}
 	isNegative := value.Sign() == -1
 	signBit := "0"
@@ -205,16 +205,13 @@ func EncodeSigned(value *big.Int) ([]byte, error) {
 	encodedBitString := encodedBitStringBuf.String()
 
 	// Convert from bitstring to byte array
-	return bitStringToBytes(encodedBitString), nil
+	return bitStringToBytes(encodedBitString)
 }
 
 // EncodeSignedToHex encodes a signed integer to zarith
-func EncodeSignedToHex(value *big.Int) (string, error) {
-	bytes, err := EncodeSigned(value)
-	if err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(bytes), nil
+func EncodeSignedToHex(value *big.Int) string {
+	bytes := EncodeSigned(value)
+	return hex.EncodeToString(bytes)
 }
 
 // DecodeSigned decodes a zarith encoded signed integer from the entire input byte array.

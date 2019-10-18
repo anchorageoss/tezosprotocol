@@ -85,8 +85,7 @@ func TestEncodeSigned(t *testing.T) {
 		input := new(big.Int)
 		_, ok := input.SetString(testCase.input, 10)
 		require.True(ok)
-		observed, err := zarith.EncodeSignedToHex(input)
-		require.NoError(err)
+		observed := zarith.EncodeSignedToHex(input)
 		require.Equal(testCase.expected, observed, "mismatch for input %s", testCase.input)
 	}
 }
