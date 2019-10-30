@@ -79,6 +79,9 @@ func TestEncodeSigned(t *testing.T) {
 	}, {
 		input:    "138",
 		expected: "8a02",
+	}, {
+		input:    "1000000",
+		expected: "80897a",
 	}}
 
 	for _, testCase := range testCases {
