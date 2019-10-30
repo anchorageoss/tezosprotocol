@@ -96,7 +96,12 @@ func Encode(value *big.Int) ([]byte, error) {
 	valueBitstring := value.Text(2)
 
 	// Pad with leading zeros until number of bits is a multiple of 7
-	numPaddingBitsRequired := (lengthZarithBitSegment*len(valueBitstring) - len(valueBitstring)) % lengthZarithBitSegment
+	var numPaddingBitsRequired int
+	if len(valueBitstring)%lengthZarithBitSegment == 0 {
+		numPaddingBitsRequired = 0
+	} else {
+		numPaddingBitsRequired = lengthZarithBitSegment - (len(valueBitstring) % lengthZarithBitSegment)
+	}
 	paddedBitstringBuffer := bytes.Buffer{}
 	for i := 0; i < numPaddingBitsRequired; i++ {
 		paddedBitstringBuffer.WriteString("0")
@@ -168,7 +173,11 @@ func EncodeSigned(value *big.Int) []byte {
 		numPaddingBitsRequired = lengthZarithBitSegmentWithSignFlag - numValueBits
 	} else {
 		numBitsAfterFirstSegment := numValueBits - lengthZarithBitSegmentWithSignFlag
-		numPaddingBitsRequired = lengthZarithBitSegment - (numBitsAfterFirstSegment % lengthZarithBitSegment)
+		if numBitsAfterFirstSegment%lengthZarithBitSegment == 0 {
+			numPaddingBitsRequired = 0
+		} else {
+			numPaddingBitsRequired = lengthZarithBitSegment - (numBitsAfterFirstSegment % lengthZarithBitSegment)
+		}
 	}
 	paddedBitStringBuffer := bytes.Buffer{}
 	for i := 0; i < numPaddingBitsRequired; i++ {
