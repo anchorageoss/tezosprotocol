@@ -5,7 +5,8 @@ const (
 	// https://gitlab.com/tezos/tezos/blob/master/src%2Fproto_alpha%2Flib_protocol%2Fmichelson_v1_primitives.ml
 	// They don't follow go's name conventions in order to preserve easy comparison
 	// with the original ocaml code and easy updates to keep up with protocol changes
-	PrimK_parameter = iota
+	// The right order is defined in prim_encoding
+	PrimK_parameter byte = iota
 	PrimK_storage
 	PrimK_code
 	PrimD_False
@@ -29,7 +30,6 @@ const (
 	PrimI_BALANCE
 	PrimI_CAR
 	PrimI_CDR
-	PrimI_CHAIN_ID
 	PrimI_CHECK_SIGNATURE
 	PrimI_COMPARE
 	PrimI_CONCAT
@@ -41,12 +41,10 @@ const (
 	PrimI_DROP
 	PrimI_DUP
 	PrimI_EDIV
-	PrimI_EMPTY_BIG_MAP
 	PrimI_EMPTY_MAP
 	PrimI_EMPTY_SET
 	PrimI_EQ
 	PrimI_EXEC
-	PrimI_APPLY
 	PrimI_FAILWITH
 	PrimI_GE
 	PrimI_GET
@@ -82,7 +80,6 @@ const (
 	PrimI_SOURCE
 	PrimI_SENDER
 	PrimI_SELF
-	PrimI_SLICE
 	PrimI_STEPS_TO_QUOTA
 	PrimI_SUB
 	PrimI_SWAP
@@ -98,8 +95,6 @@ const (
 	PrimI_ISNAT
 	PrimI_CAST
 	PrimI_RENAME
-	PrimI_DIG
-	PrimI_DUG
 	PrimT_bool
 	PrimT_contract
 	PrimT_int
@@ -122,5 +117,11 @@ const (
 	PrimT_unit
 	PrimT_operation
 	PrimT_address
+	PrimI_SLICE
+	PrimI_DIG
+	PrimI_DUG
+	PrimI_EMPTY_BIG_MAP
+	PrimI_APPLY
 	PrimT_chain_id
+	PrimI_CHAIN_ID
 )
