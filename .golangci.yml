@@ -52,3 +52,9 @@ issues:
       text: "should not use underscores"
       linters:
         - stylecheck
+    - path: branch_id.go
+      linters:
+        - dupl
+    - path: operation_hash.go
+        linters:
+        - dupl
