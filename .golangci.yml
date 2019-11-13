@@ -41,3 +41,14 @@ linters-settings:
     simple: true
     range-loops: true
     for-loops: true
+
+issues:
+  exclude-rules:
+    - path: 'michelson_primitives.go'
+      text: "don't use underscores in Go names"
+      linters:
+        - golint
+    - path: 'michelson_primitives.go'
+      text: "should not use underscores"
+      linters:
+        - stylecheck
