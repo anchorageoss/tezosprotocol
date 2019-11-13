@@ -88,7 +88,7 @@ func (m *MichelineBytes) UnmarshalBinary([]byte) error {
 	panic("not implemented")
 }
 
-// MichelinePrim likely represents a Michelson primivive in a Micheline expression
+// MichelinePrim likely represents a Michelson primitive in a Micheline expression
 type MichelinePrim struct {
 	Prim   byte
 	Args   []MichelineNode
