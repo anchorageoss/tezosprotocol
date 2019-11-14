@@ -11,11 +11,12 @@ import (
 
 func TestEncodeOrigination(t *testing.T) {
 	require := require.New(t)
-	primUnit, err := hex.DecodeString("036c") // 03 <prim0> 6c <unit>
+	micheline := tezosprotocol.MichelinePrim{Prim: tezosprotocol.PrimT_unit}
+	michelineBytes, err := micheline.MarshalBinary()
 	require.NoError(err)
 	dummyScript := tezosprotocol.ContractScript{
-		Code:    primUnit,
-		Storage: primUnit,
+		Code:    michelineBytes,
+		Storage: michelineBytes,
 	}
 	delegate := tezosprotocol.ContractID("tz1ddb9NMYHZi5UzPdzTZMYQQZoMub195zgv")
 	origination := &tezosprotocol.Origination{
