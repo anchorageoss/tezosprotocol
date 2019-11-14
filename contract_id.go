@@ -9,6 +9,34 @@ import (
 	"golang.org/x/xerrors"
 )
 
+// Field lengths
+const (
+	// ContractHashLen is the length in bytes of a serialized contract hash
+	ContractHashLen = 20
+	// ContractIDLen is the length in bytes of a serialized contract ID
+	ContractIDLen = 22
+)
+
+// ContractIDTag captures the possible tag values for $contract_id
+type ContractIDTag byte
+
+const (
+	// ContractIDTagImplicit is the tag for implicit accounts
+	ContractIDTagImplicit ContractIDTag = 0
+	// ContractIDTagOriginated is the tag for originated accounts
+	ContractIDTagOriginated ContractIDTag = 1
+)
+
+// AccountType is either an implicit account or an originated account
+type AccountType string
+
+const (
+	// AccountTypeImplicit indicates an implicit account
+	AccountTypeImplicit AccountType = "implicit"
+	// AccountTypeOriginated indicates an originated account
+	AccountTypeOriginated AccountType = "originated"
+)
+
 // ContractID encodes a tezos contract ID (either implicit or originated) in
 // base58check encoding.
 type ContractID string

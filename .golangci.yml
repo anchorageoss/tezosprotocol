@@ -56,5 +56,5 @@ issues:
       linters:
         - dupl
     - path: operation_hash.go
-        linters:
+      linters:
         - dupl

@@ -16,6 +16,26 @@ type SignedOperation struct {
 	Signature Signature
 }
 
+// Watermark is the first byte of a signable payload that indicates
+// the type of data represented.
+type Watermark byte
+
+// References: https://gitlab.com/tezos/tezos/blob/master/src/lib_crypto/signature.ml#L43
+const (
+	// BlockHeaderWatermark is the special byte prepended to serialized block headers before signing
+	BlockHeaderWatermark Watermark = 1
+	// EndorsementWatermark is the special byte prepended to serialized endorsements before signing
+	EndorsementWatermark Watermark = 2
+	// OperationWatermark is the special byte prepended to serialized operations before signing
+	OperationWatermark Watermark = 3
+	// CustomWatermark is for custom purposes
+	CustomWatermark Watermark = 4
+	// TextWatermark is the special byte prepended to plaintext messages before signing. It is not
+	// yet part of the standard but has some precedent here:
+	// https://tezos.stackexchange.com/questions/1177/whats-the-easiest-way-for-an-account-holder-to-verify-sign-that-they-are-the-ri/1178#1178
+	TextWatermark Watermark = 5
+)
+
 // SignOperation signs the given tezos operation using the provided
 // signing key. The returned bytes are the signed operation, encoded as
 // (operation bytes || signature bytes).

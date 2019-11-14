@@ -9,6 +9,16 @@ import (
 	"golang.org/x/xerrors"
 )
 
+// Field lengths
+const (
+	// BlockHashLen is the length in bytes of a serialized block hash
+	BlockHashLen = 32
+	// OperationHashLen is the length in bytes of a serialized operation hash
+	OperationHashLen = 32
+	// OperationSignatureLen is the length in bytes of a serialized operation signature
+	OperationSignatureLen = 64
+)
+
 // OperationContents models one of multiple contents of a tezos operation.
 // Reference: http://tezos.gitlab.io/mainnet/api/p2p.html#operation-alpha-contents-determined-from-data-8-bit-tag
 type OperationContents interface {
