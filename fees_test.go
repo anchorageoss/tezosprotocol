@@ -1,9 +1,11 @@
-package tezosprotocol
+package tezosprotocol_test
 
 import (
 	"math/big"
 	"reflect"
 	"testing"
+
+	"github.com/anchorageoss/tezosprotocol/v2"
 )
 
 func TestComputeMinimumFee(t *testing.T) {
@@ -29,7 +31,7 @@ func TestComputeMinimumFee(t *testing.T) {
 		//Addresses lint issues: using the variable on range scope `tt` in function literal
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ComputeMinimumFee(tt.args.gasLimit, tt.args.operationSizeBytes); !reflect.DeepEqual(got, tt.want) {
+			if got := tezosprotocol.ComputeMinimumFee(tt.args.gasLimit, tt.args.operationSizeBytes); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ComputeMinimumFee() = %v, want %v", got, tt.want)
 			}
 		})
