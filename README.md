@@ -15,7 +15,7 @@ $ go get github.com/anchorageoss/tezosprotocol/v2
 ```
 
 ```go
-import tezosprotocol "github.com/anchorageoss/tezosprotocol/v2"
+import "github.com/anchorageoss/tezosprotocol/v2"
 ```
 
 ## Examples

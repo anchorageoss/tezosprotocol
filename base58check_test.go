@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"testing"
 
-	tezosprotocol "github.com/anchorageoss/tezosprotocol/v2"
+	"github.com/anchorageoss/tezosprotocol/v2"
 	"github.com/stretchr/testify/require"
 )
 

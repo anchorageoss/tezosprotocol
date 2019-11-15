@@ -11,6 +11,44 @@ import (
 	"golang.org/x/xerrors"
 )
 
+// PubKeyHashTag captures the possible tag values for $public_key_hash
+type PubKeyHashTag byte
+
+const (
+	// PubKeyHashTagEd25519 is the tag for Ed25519 pubkey hashes
+	PubKeyHashTagEd25519 PubKeyHashTag = 0
+	// PubKeyHashTagSecp256k1 is the tag for Secp256k1 pubkey hashes
+	PubKeyHashTagSecp256k1 PubKeyHashTag = 1
+	// PubKeyHashTagP256 is the tag for P256 pubkey hashes
+	PubKeyHashTagP256 PubKeyHashTag = 2
+)
+
+// PubKeyTag captures the possible tag values for $public_key
+type PubKeyTag byte
+
+const (
+	// PubKeyTagEd25519 is the tag for Ed25519 pubkeys
+	PubKeyTagEd25519 PubKeyTag = 0
+	// PubKeyTagSecp256k1 is the tag for Secp256k1 pubkeys
+	PubKeyTagSecp256k1 PubKeyTag = 1
+	// PubKeyTagP256 is the tag for P256 pubkeys
+	PubKeyTagP256 PubKeyTag = 2
+)
+
+// Field lengths
+const (
+	// PubKeyHashLen is the length in bytes of a serialized public key hash
+	PubKeyHashLen = 20
+	// TaggedPubKeyHashLen is the length in bytes of a serialized, tagged public key hash
+	TaggedPubKeyHashLen = PubKeyHashLen + 1
+	// PubKeyLenEd25519 is the length in bytes of a serialized Ed25519 public key
+	PubKeyLenEd25519 = 32
+	// PubKeyLenSecp256k1 is the length in bytes of a serialized Secp256k1 public key
+	PubKeyLenSecp256k1 = 33
+	// PubKeyLenP256 is the length in bytes of a serialized P256 public key
+	PubKeyLenP256 = 33
+)
+
 // PublicKey encodes a tezos public key in base58check encoding
 type PublicKey string
 
