@@ -112,10 +112,6 @@ func TestEndpointNameTooLong(t *testing.T) {
 }
 
 func TestEntrypoint_Name(t *testing.T) {
-	type fields struct {
-		tag  tezosprotocol.EntrypointTag
-		name string
-	}
 	tests := []struct {
 		name    string
 		bytes   []byte
@@ -172,6 +168,7 @@ func TestEntrypoint_Name(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			var e tezosprotocol.Entrypoint
 			err := e.UnmarshalBinary(tt.bytes)
@@ -192,10 +189,6 @@ func TestEntrypoint_Name(t *testing.T) {
 }
 
 func TestEntrypoint_Tag(t *testing.T) {
-	type fields struct {
-		tag  tezosprotocol.EntrypointTag
-		name string
-	}
 	tests := []struct {
 		name  string
 		bytes []byte
@@ -228,6 +221,7 @@ func TestEntrypoint_Tag(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			var e tezosprotocol.Entrypoint
 			err := e.UnmarshalBinary(tt.bytes)
@@ -243,10 +237,6 @@ func TestEntrypoint_Tag(t *testing.T) {
 }
 
 func TestEntrypoint_String(t *testing.T) {
-	type fields struct {
-		tag  tezosprotocol.EntrypointTag
-		name string
-	}
 	tests := []struct {
 		name  string
 		bytes []byte
@@ -294,6 +284,7 @@ func TestEntrypoint_String(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			var e tezosprotocol.Entrypoint
 			err := e.UnmarshalBinary(tt.bytes)
