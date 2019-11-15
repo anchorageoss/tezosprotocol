@@ -110,3 +110,206 @@ func TestEndpointNameTooLong(t *testing.T) {
 	_, err := tezosprotocol.NewNamedEntrypoint(strings.Repeat("a", math.MaxUint8+1))
 	require.Error(t, err)
 }
+
+func TestEntrypoint_Name(t *testing.T) {
+	type fields struct {
+		tag  tezosprotocol.EntrypointTag
+		name string
+	}
+	tests := []struct {
+		name    string
+		bytes   []byte
+		want    string
+		wantErr bool
+	}{
+		{
+			name:    "default",
+			bytes:   []byte{byte(tezosprotocol.EntrypointTagDefault)},
+			want:    "default",
+			wantErr: false,
+		},
+		{
+			name:    "root",
+			bytes:   []byte{byte(tezosprotocol.EntrypointTagRoot)},
+			want:    "root",
+			wantErr: false,
+		},
+		{
+			name:    "do",
+			bytes:   []byte{byte(tezosprotocol.EntrypointTagDo)},
+			want:    "do",
+			wantErr: false,
+		},
+		{
+			name:    "set_delegate",
+			bytes:   []byte{byte(tezosprotocol.EntrypointTagSetDelegate)},
+			want:    "set_delegate",
+			wantErr: false,
+		},
+		{
+			name:    "remove_delegate",
+			bytes:   []byte{byte(tezosprotocol.EntrypointTagRemoveDelegate)},
+			want:    "remove_delegate",
+			wantErr: false,
+		},
+		{
+			name:    "named",
+			bytes:   append([]byte{byte(tezosprotocol.EntrypointTagNamed), 4}, []byte("tada")...),
+			want:    "tada",
+			wantErr: false,
+		},
+		{
+			name:    "empty named",
+			bytes:   []byte{byte(tezosprotocol.EntrypointTagNamed), 0},
+			want:    "",
+			wantErr: true,
+		},
+		{
+			name:    "potato",
+			bytes:   []byte{byte(42)},
+			want:    "",
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var e tezosprotocol.Entrypoint
+			err := e.UnmarshalBinary(tt.bytes)
+			if err != nil {
+				t.Errorf("UnmarshalBinary(%v) error = %v", tt.bytes, err)
+				return
+			}
+			got, err := e.Name()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Entrypoint.Name() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("Entrypoint.Name() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestEntrypoint_Tag(t *testing.T) {
+	type fields struct {
+		tag  tezosprotocol.EntrypointTag
+		name string
+	}
+	tests := []struct {
+		name  string
+		bytes []byte
+		want  tezosprotocol.EntrypointTag
+	}{
+		{
+			name:  "default",
+			bytes: []byte{byte(tezosprotocol.EntrypointTagDefault)},
+			want:  tezosprotocol.EntrypointTagDefault,
+		},
+		{
+			name:  "root",
+			bytes: []byte{byte(tezosprotocol.EntrypointTagRoot)},
+			want:  tezosprotocol.EntrypointTagRoot,
+		},
+		{
+			name:  "do",
+			bytes: []byte{byte(tezosprotocol.EntrypointTagDo)},
+			want:  tezosprotocol.EntrypointTagDo,
+		},
+		{
+			name:  "set_delegate",
+			bytes: []byte{byte(tezosprotocol.EntrypointTagSetDelegate)},
+			want:  tezosprotocol.EntrypointTagSetDelegate,
+		},
+		{
+			name:  "remove_delegate",
+			bytes: []byte{byte(tezosprotocol.EntrypointTagRemoveDelegate)},
+			want:  tezosprotocol.EntrypointTagRemoveDelegate,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var e tezosprotocol.Entrypoint
+			err := e.UnmarshalBinary(tt.bytes)
+			if err != nil {
+				t.Errorf("UnmarshalBinary(%v) error = %v", tt.bytes, err)
+				return
+			}
+			if got := e.Tag(); got != tt.want {
+				t.Errorf("Entrypoint.Name() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestEntrypoint_String(t *testing.T) {
+	type fields struct {
+		tag  tezosprotocol.EntrypointTag
+		name string
+	}
+	tests := []struct {
+		name  string
+		bytes []byte
+		want  string
+	}{
+		{
+			name:  "default",
+			bytes: []byte{byte(tezosprotocol.EntrypointTagDefault)},
+			want:  "default",
+		},
+		{
+			name:  "root",
+			bytes: []byte{byte(tezosprotocol.EntrypointTagRoot)},
+			want:  "root",
+		},
+		{
+			name:  "do",
+			bytes: []byte{byte(tezosprotocol.EntrypointTagDo)},
+			want:  "do",
+		},
+		{
+			name:  "set_delegate",
+			bytes: []byte{byte(tezosprotocol.EntrypointTagSetDelegate)},
+			want:  "set_delegate",
+		},
+		{
+			name:  "remove_delegate",
+			bytes: []byte{byte(tezosprotocol.EntrypointTagRemoveDelegate)},
+			want:  "remove_delegate",
+		},
+		{
+			name:  "named",
+			bytes: append([]byte{byte(tezosprotocol.EntrypointTagNamed), 4}, []byte("tada")...),
+			want:  "tada",
+		},
+		{
+			name:  "empty named",
+			bytes: []byte{byte(tezosprotocol.EntrypointTagNamed), 0},
+			want:  "<invalid entrypoint>",
+		},
+		{
+			name:  "potato",
+			bytes: []byte{byte(42)},
+			want:  "<invalid entrypoint>",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var e tezosprotocol.Entrypoint
+			err := e.UnmarshalBinary(tt.bytes)
+			if err != nil {
+				t.Errorf("UnmarshalBinary(%v) error = %v", tt.bytes, err)
+				return
+			}
+			if tt.want == "<invalid entrypoint>" {
+				if got := e.String(); got != tt.want {
+					t.Errorf("Entrypoint.String() = %v, want %v", got, tt.want)
+				}
+			} else {
+				if got := e.String(); got != "%"+tt.want {
+					t.Errorf("Entrypoint.String() = %v, want %v", got, tt.want)
+				}
+			}
+		})
+	}
+}
