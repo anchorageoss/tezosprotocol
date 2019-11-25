@@ -4,6 +4,7 @@ linters:
     - gochecknoglobals
     - interfacer
     - lll
+    - wsl
 
 linters-settings:
   funlen:

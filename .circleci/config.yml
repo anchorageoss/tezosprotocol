@@ -18,7 +18,7 @@ jobs:
       - run: CODECOV_TOKEN="01bc2a19-099e-48ef-bde0-968b0848d694" bash <(curl -s https://codecov.io/bash)
   go_lint:
     docker:
-    - image: golangci/golangci-lint:v1.19.1
+    - image: golangci/golangci-lint:v1.21.0
     steps:
       - checkout
       - restore_cache:
