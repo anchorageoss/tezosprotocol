@@ -66,7 +66,6 @@ func (e *Endorsement) UnmarshalBinary(data []byte) (err error) {
 	if err != nil {
 		return xerrors.Errorf("failed to unmarshal level: %w", err)
 	}
-	dataPtr = dataPtr[bytesRead:]
 
 	return nil
 }
