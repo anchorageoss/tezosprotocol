@@ -12,4 +12,6 @@ const (
 	ContentsTagOrigination ContentsTag = 109
 	// ContentsTagDelegation is the tag for delegations
 	ContentsTagDelegation ContentsTag = 110
+	// ContentsTagEndorsement is the tag for endorsements
+	ContentsTagEndorsement ContentsTag = 0
 )
