@@ -33,12 +33,11 @@ func (e *Endorsement) MarshalBinary() ([]byte, error) {
 	levelBytesBuf := new(bytes.Buffer)
 	err := binary.Write(levelBytesBuf, binary.BigEndian, e.Level)
 	if err != nil {
-		return []byte(""), err
+		return []byte(""), xerrors.Errorf("%w", err)
 	}
-
 	_, err = buf.Write(levelBytesBuf.Bytes())
 	if err != nil {
-		return []byte(""), err
+		return []byte(""), xerrors.Errorf("%w", err)
 	}
 
 	return buf.Bytes(), nil
