@@ -2,16 +2,15 @@ package tezosprotocol
 
 import (
 	"bytes"
+	"encoding/binary"
 	"fmt"
-	"math/big"
 
-	"github.com/anchorageoss/tezosprotocol/v2/zarith"
 	"golang.org/x/xerrors"
 )
 
 // Endorsement models the tezos endorsement operation type
 type Endorsement struct {
-	Level *big.Int
+	Level int32
 }
 
 func (e *Endorsement) String() string {
@@ -31,13 +30,24 @@ func (e *Endorsement) MarshalBinary() ([]byte, error) {
 	buf.WriteByte(byte(e.GetTag()))
 
 	// Level
-	level, err := zarith.Encode(e.Level)
+	levelBytesBuf := new(bytes.Buffer)
+	err := binary.Write(levelBytesBuf, binary.BigEndian, e.Level)
 	if err != nil {
-		return nil, xerrors.Errorf("failed to write Level: %w", err)
+		return []byte(""), err
 	}
-	buf.Write(level)
+
+	_, err = buf.Write(levelBytesBuf.Bytes())
+	if err != nil {
+		return []byte(""), err
+	}
 
 	return buf.Bytes(), nil
+}
+
+func readInt32(data []byte) (ret int32, err error) {
+	buf := bytes.NewBuffer(data)
+	err = binary.Read(buf, binary.BigEndian, &ret)
+	return ret, err
 }
 
 // UnmarshalBinary implements encoding.BinaryUnmarshaler
@@ -60,12 +70,12 @@ func (e *Endorsement) UnmarshalBinary(data []byte) (err error) {
 	}
 	dataPtr = dataPtr[1:]
 
-	// counter
-	var bytesRead int
-	e.Level, bytesRead, err = zarith.ReadNext(dataPtr)
+	// Level
+	level, err := readInt32(dataPtr)
 	if err != nil {
 		return xerrors.Errorf("failed to unmarshal level: %w", err)
 	}
+	e.Level = level
 
 	return nil
 }
