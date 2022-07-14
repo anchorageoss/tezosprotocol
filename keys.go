@@ -6,7 +6,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 
-	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcd/btcec/v2"
 	"golang.org/x/crypto/ed25519"
 	"golang.org/x/xerrors"
 )

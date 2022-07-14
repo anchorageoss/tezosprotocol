@@ -11,7 +11,7 @@ import (
 	"testing"
 
 	"github.com/anchorageoss/tezosprotocol/v2"
-	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/crypto/ed25519"
 )

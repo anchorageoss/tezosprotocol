@@ -4,7 +4,7 @@ import (
 	"crypto"
 	"crypto/ecdsa"
 
-	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcd/btcec/v2"
 	"golang.org/x/crypto/blake2b"
 	"golang.org/x/crypto/ed25519"
 	"golang.org/x/xerrors"
