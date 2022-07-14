@@ -1,6 +1,6 @@
 module github.com/anchorageoss/tezosprotocol/v2
 
-go 1.12
+go 1.16
 
 require (
 	github.com/btcsuite/btcd/btcec/v2 v2.2.0
