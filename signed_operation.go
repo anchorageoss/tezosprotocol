@@ -5,6 +5,8 @@ import (
 	"crypto/ecdsa"
 
 	"github.com/btcsuite/btcd/btcec/v2"
+	btcecdsa "github.com/btcsuite/btcd/btcec/v2/ecdsa"
+	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 	"golang.org/x/crypto/blake2b"
 	"golang.org/x/crypto/ed25519"
 	"golang.org/x/xerrors"
@@ -152,11 +154,10 @@ func signGeneric(watermark Watermark, message []byte, privateKey PrivateKey) (Si
 		signature, err := Base58CheckEncode(PrefixEd25519Signature, signatureBytes)
 		return Signature(signature), err
 	case ecdsa.PrivateKey:
-		btcecPrivKey := btcec.PrivateKey(key)
-		btcecSignature, err := btcecPrivKey.Sign(payloadHash[:])
-		if err != nil {
-			return "", err
-		}
+		d := &secp256k1.ModNScalar{}
+		d.SetByteSlice(key.D.Bytes())
+		btcecPrivKey := btcec.PrivKeyFromScalar(d)
+		btcecSignature := btcecdsa.Sign(btcecPrivKey, payloadHash[:])
 		signature, err := Base58CheckEncode(PrefixGenericSignature, btcecSignature.Serialize())
 		return Signature(signature), err
 	default:

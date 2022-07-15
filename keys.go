@@ -5,8 +5,10 @@ import (
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/elliptic"
+	"math/big"
 
 	"github.com/btcsuite/btcd/btcec/v2"
+	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 	"golang.org/x/crypto/ed25519"
 	"golang.org/x/xerrors"
 )
@@ -61,12 +63,21 @@ func NewPublicKeyFromCryptoPublicKey(cryptoPubKey crypto.PublicKey) (PublicKey, 
 	case ecdsa.PublicKey:
 		switch key.Curve {
 		case btcec.S256():
-			btcSuitePublicKey := btcec.PublicKey(key)
+			// btcec.ParsePubKey(key)
+			x := &secp256k1.FieldVal{}
+			x.SetByteSlice(key.X.Bytes())
+			y := &secp256k1.FieldVal{}
+			y.SetByteSlice(key.X.Bytes())
+			btcSuitePublicKey := btcec.NewPublicKey(x, y)
 			compressedPubKeyBytes := btcSuitePublicKey.SerializeCompressed()
 			ret, err := Base58CheckEncode(PrefixSecp256k1PublicKey, compressedPubKeyBytes)
 			return PublicKey(ret), err
 		case elliptic.P256():
-			btcSuitePublicKey := btcec.PublicKey(key)
+			x := &secp256k1.FieldVal{}
+			x.SetByteSlice(key.X.Bytes())
+			y := &secp256k1.FieldVal{}
+			y.SetByteSlice(key.X.Bytes())
+			btcSuitePublicKey := btcec.NewPublicKey(x, y)
 			compressedPubKeyBytes := btcSuitePublicKey.SerializeCompressed()
 			ret, err := Base58CheckEncode(PrefixP256PublicKey, compressedPubKeyBytes)
 			return PublicKey(ret), err
@@ -88,7 +99,7 @@ func (p PublicKey) CryptoPublicKey() (crypto.PublicKey, error) {
 	case PrefixEd25519PublicKey:
 		return ed25519.PublicKey(b58decoded), nil
 	case PrefixSecp256k1PublicKey:
-		btcecPublicKey, err := btcec.ParsePubKey(b58decoded, btcec.S256())
+		btcecPublicKey, err := btcec.ParsePubKey(b58decoded)
 		if err != nil {
 			return nil, err
 		}
@@ -183,12 +194,16 @@ func NewPrivateKeyFromCryptoPrivateKey(cryptoPrivateKey crypto.PrivateKey) (Priv
 	case *ecdsa.PrivateKey:
 		switch key.PublicKey.Curve {
 		case btcec.S256():
-			btcSuitePrivateKey := btcec.PrivateKey(*key)
+			d := &secp256k1.ModNScalar{}
+			d.SetByteSlice(key.D.Bytes())
+			btcSuitePrivateKey := btcec.PrivKeyFromScalar(d)
 			privKeyBytes := btcSuitePrivateKey.Serialize()
 			ret, err := Base58CheckEncode(PrefixSecp256k1SecretKey, privKeyBytes)
 			return PrivateKey(ret), err
 		case elliptic.P256():
-			btcSuitePrivateKey := btcec.PrivateKey(*key)
+			d := &secp256k1.ModNScalar{}
+			d.SetByteSlice(key.D.Bytes())
+			btcSuitePrivateKey := btcec.PrivKeyFromScalar(d)
 			privKeyBytes := btcSuitePrivateKey.Serialize()
 			ret, err := Base58CheckEncode(PrefixP256SecretKey, privKeyBytes)
 			return PrivateKey(ret), err
@@ -210,11 +225,15 @@ func (p PrivateKey) CryptoPrivateKey() (crypto.PrivateKey, error) {
 	case PrefixEd25519SecretKey:
 		return ed25519.PrivateKey(b58decoded), nil
 	case PrefixSecp256k1SecretKey:
-		privateKey, _ := btcec.PrivKeyFromBytes(btcec.S256(), b58decoded)
+		privateKey, _ := btcec.PrivKeyFromBytes(b58decoded)
 		return privateKey.ToECDSA(), nil
 	case PrefixP256SecretKey:
-		privateKey, _ := btcec.PrivKeyFromBytes(elliptic.P256(), b58decoded)
-		return privateKey.ToECDSA(), nil
+		priv := new(ecdsa.PrivateKey)
+		priv.PublicKey.Curve = elliptic.P256()
+		priv.D = new(big.Int)
+		priv.D.SetBytes(b58decoded)
+		priv.PublicKey.X, priv.PublicKey.Y = elliptic.P256().ScalarBaseMult(b58decoded)
+		return priv, nil
 	default:
 		return nil, xerrors.Errorf("unexpected base58check private key prefix %s", b58prefix)
 	}
