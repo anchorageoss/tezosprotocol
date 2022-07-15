@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/anchorageoss/tezosprotocol/v2"
+	"github.com/anchorageoss/tezosprotocol/v3"
 )
 
 func TestComputeMinimumFee(t *testing.T) {
