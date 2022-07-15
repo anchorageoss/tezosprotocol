@@ -3,7 +3,7 @@ package tezosprotocol_test
 import (
 	"testing"
 
-	tezosprotocol "github.com/anchorageoss/tezosprotocol/v2"
+	tezosprotocol "github.com/anchorageoss/tezosprotocol/v3"
 	"github.com/stretchr/testify/require"
 )
 

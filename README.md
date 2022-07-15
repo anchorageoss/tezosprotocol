@@ -11,11 +11,11 @@ Supports offline fee calculation and the parsing, signing, and encoding of Tezos
 ## Installation
 
 ```bash
-$ go get github.com/anchorageoss/tezosprotocol/v2
+$ go get github.com/anchorageoss/tezosprotocol/v3
 ```
 
 ```go
-import "github.com/anchorageoss/tezosprotocol/v2"
+import "github.com/anchorageoss/tezosprotocol/v3"
 ```
 
 ## Examples
@@ -74,7 +74,7 @@ All backwards-incompatible changes will be handled via standard semantic version
 A separate go module will be published for each Tezos protocol upgrade to support applications migrating between the two.
 ```go
 import (
-	babylon "github.com/anchorageoss/tezosprotocol/v2"
+	babylon "github.com/anchorageoss/tezosprotocol/v3"
 	athens "github.com/anchorageoss/tezosprotocol"
 )
 ```

@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/anchorageoss/tezosprotocol/v2"
+	"github.com/anchorageoss/tezosprotocol/v3"
 )
 
 func TestBranchID_MarshalBinary(t *testing.T) {

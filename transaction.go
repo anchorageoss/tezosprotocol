@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/anchorageoss/tezosprotocol/v2/zarith"
+	"github.com/anchorageoss/tezosprotocol/v3/zarith"
 	"golang.org/x/xerrors"
 )
 
